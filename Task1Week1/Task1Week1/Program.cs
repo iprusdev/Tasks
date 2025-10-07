@@ -6,32 +6,10 @@ void main()
     {
         float FirstNum, SecondNum, result;
         string Arifmetic;
-        Console.WriteLine("Введите первое число");
-        while (true)
-        {
-            if (float.TryParse(Console.ReadLine(), out FirstNum))
-            {
-                break;
-            }
-            else
-            {
-                Console.WriteLine("Ошибка: вы ввели не число!");
-            }
-        }
-        Console.WriteLine("Выберите операцию +,-,/,*");
-        Arifmetic = Console.ReadLine();
-        Console.WriteLine("Введите второе число");
-        while (true)
-        {
-            if (float.TryParse(Console.ReadLine(), out SecondNum))
-            {
-                break;
-            }
-            else
-            {
-                Console.WriteLine("Ошибка: вы ввели не число!");
-            }
-        }
+        FirstNum = GetNumber("Введите первое число");
+        Arifmetic = GetOperator();
+        SecondNum = GetNumber("Введите второе число");
+        
         switch (Arifmetic)
         {
             case "+":
@@ -78,6 +56,35 @@ void main()
             Console.WriteLine("Заверешение программы");
             Thread.Sleep(2000);
             break;
+        }
+    }
+}
+
+float GetNumber(string prompt)
+{
+    float number;
+    Console.WriteLine(prompt);
+    while (!float.TryParse(Console.ReadLine(), out number))
+    {
+        Console.WriteLine("Ошибка: вы ввели не число! Попробуйте еще раз.");
+    }
+    return number;
+}
+
+string GetOperator()
+{
+    string operation;
+    Console.WriteLine("Выберите операцию: +, -, /, *");
+    while (true)
+    {
+        operation = Console.ReadLine();
+        if (operation == "+" || operation == "-" || operation == "*" || operation == "/")
+        {
+            return operation;
+        }
+        else
+        {
+            Console.WriteLine("Ошибка: такой операции не существует! Выберите операцию: +, -, /, *");
         }
     }
 }
