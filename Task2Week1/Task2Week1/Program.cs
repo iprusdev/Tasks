@@ -1,5 +1,6 @@
 ﻿using System;
 using static System.Threading.Thread;
+using System.Diagnostics;
 class File
 {
     public string ProcessData(string dataName)
@@ -19,14 +20,19 @@ class Program
     static async Task Main()
     {
 
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
         File file1 = new File();
         File file2 = new File();
         File file3 = new File();
         Console.WriteLine(file1.ProcessData("Файл 1"));
         Console.WriteLine(file2.ProcessData("Файл 2"));
         Console.WriteLine(file3.ProcessData("Файл 3"));
+        stopwatch.Stop();
+        Console.WriteLine($"Синхронное выполнение заняло: {stopwatch.ElapsedMilliseconds} мс\n");
 
 
+        stopwatch.Restart();
         File file4 = new File();
         File file5 = new File();
         File file6 = new File();
@@ -36,11 +42,15 @@ class Program
         Task<string> task3 = file6.ProcessDataAsync("Файл 6");
 
         string[] results = await Task.WhenAll(task1, task2, task3);
+        stopwatch.Stop();
 
         foreach (var result in results)
         {
             Console.WriteLine(result);
         }
+        Console.WriteLine($"Асинхронное выполнение заняло: {stopwatch.ElapsedMilliseconds} мс");
+
+
     }
 }
 
