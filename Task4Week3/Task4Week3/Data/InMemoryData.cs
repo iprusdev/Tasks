@@ -14,9 +14,8 @@ namespace Task4Week3.Data
         public static readonly List<Book> Books = new List<Book>
         {
             new Book { Id = 1, Title = "Война и мир", PublishedYear = 1869, AuthorId = 1 },
-            new Book { Id = 2, Title = "Анна Каренина", PublishedYear = 1877, AuthorId = 1 },
-            new Book { Id = 3, Title = "Преступление и наказание", PublishedYear = 1866, AuthorId = 2 },
-            new Book { Id = 4, Title = "Гарри Поттер и философский камень", PublishedYear = 1997, AuthorId = 3}
+            new Book { Id = 2, Title = "Преступление и наказание", PublishedYear = 1866, AuthorId = 2 },
+            new Book { Id = 3, Title = "Гарри Поттер и философский камень", PublishedYear = 1997, AuthorId = 3}
         };
     }
 }
