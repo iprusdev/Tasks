@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Task4Week4.Models;
 using Task4Week4.Data;
+using Task4Week4.Models;
+using Task4Week4.Services;
 
 
 namespace Task4Week4.Controllers
@@ -10,25 +11,23 @@ namespace Task4Week4.Controllers
     [Route("api/[controller]")]
     public class AuthorsController : ControllerBase
     {
-        private readonly LibraryContext _context;
-        public AuthorsController(LibraryContext context)
+        private readonly IAuthorService _authorService;
+
+        public AuthorsController(IAuthorService authorService)
         {
-            _context = context;
+            _authorService = authorService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
         {
-            return await _context.Authors.Include(a => a.Books).ToListAsync();
+            return Ok(await _authorService.GetAllAuthorsAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Author>> GetAuthor(int id)
         {
-            var author = await _context.Authors
-                .Include(a => a.Books)
-                .FirstOrDefaultAsync(a => a.Id == id);
-
+            var author = await _authorService.GetAuthorByIdAsync(id);
             if (author == null)
             {
                 return NotFound();
@@ -39,32 +38,25 @@ namespace Task4Week4.Controllers
         [HttpPost]
         public async Task<ActionResult<Author>> CreateAuthor(Author author)
         {
-            _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetAuthor), new { id = author.Id }, author);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var newAuthor = await _authorService.CreateAuthorAsync(author);
+            return CreatedAtAction(nameof(GetAuthor), new { id = newAuthor.Id }, newAuthor);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAuthor(int id, Author author)
         {
-            if (id != author.Id)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
-
-            _context.Entry(author).State = EntityState.Modified;
-
-            try
+            var result = await _authorService.UpdateAuthorAsync(id, author);
+            if (!result)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Authors.Any(e => e.Id == id))
-                    return NotFound();
-                else
-                    throw;
+                return BadRequest("ID не совпадает или автор не найден.");
             }
             return NoContent();
         }
@@ -72,39 +64,31 @@ namespace Task4Week4.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAuthor(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
+            try
             {
-                return NotFound();
+                var result = await _authorService.DeleteAuthorAsync(id);
+                if (!result)
+                {
+                    return NotFound();
+                }
+                return NoContent();
             }
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Author>>> SearchAuthorsByName([FromQuery] string query)
+        public async Task<ActionResult<IEnumerable<Author>>> SearchAuthors([FromQuery] string query)
         {
-            var authors = await _context.Authors
-                .Where(a => a.Name != null && a.Name.Contains(query))
-                .ToListAsync();
-
-            return Ok(authors);
+            return Ok(await _authorService.SearchAuthorsAsync(query));
         }
 
         [HttpGet("with-book-counts")]
         public async Task<ActionResult> GetAuthorsWithBookCounts()
         {
-            var authors = await _context.Authors
-                .Select(a => new
-                {
-                    AuthorId = a.Id,
-                    AuthorName = a.Name,
-                    BookCount = a.Books.Count 
-                })
-                .ToListAsync();
-
-            return Ok(authors);
+            return Ok(await _authorService.GetAuthorsWithBookCountsAsync());
         }
     }
 }

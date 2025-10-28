@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Task4Week4.Data;
 using Task4Week4.Models;
+using Task4Week4.Services;
 
 namespace Task4Week4.Controllers
 {
@@ -9,26 +10,23 @@ namespace Task4Week4.Controllers
     [Route("api/[controller]")]
     public class BooksController : ControllerBase
     {
-        private readonly LibraryContext _context;
+        private readonly IBookService _bookService;
 
-        public BooksController(LibraryContext context)
+        public BooksController(IBookService bookService)
         {
-            _context = context;
+            _bookService = bookService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            return await _context.Books.Include(b => b.Author).ToListAsync();
+            return Ok(await _bookService.GetAllBooksAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
-            var book = await _context.Books
-                .Include(b => b.Author)
-                .FirstOrDefaultAsync(b => b.Id == id);
-
+            var book = await _bookService.GetBookByIdAsync(id);
             if (book == null)
             {
                 return NotFound();
@@ -39,52 +37,58 @@ namespace Task4Week4.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> CreateBook(Book book)
         {
-            var authorExists = await _context.Authors.AnyAsync(a => a.Id == book.AuthorId);
-            if (!authorExists)
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("AuthorId", "Автор с таким ID не существует.");
                 return BadRequest(ModelState);
             }
-
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
+            try
+            {
+                var newBook = await _bookService.CreateBookAsync(book);
+                return CreatedAtAction(nameof(GetBook), new { id = newBook.Id }, newBook);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBook(int id, Book book)
         {
-            if (id != book.Id)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
-            _context.Entry(book).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                var result = await _bookService.UpdateBookAsync(id, book);
+                if (!result)
+                {
+                    return BadRequest("ID не совпадает.");
+                }
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
-            var book = await _context.Books.FindAsync(id);
-            if (book == null)
+            var result = await _bookService.DeleteBookAsync(id);
+            if (!result)
             {
                 return NotFound();
             }
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpGet("published-after/{year}")]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooksPublishedAfter(int year)
         {
-            var books = await _context.Books
-                .Where(b => b.PublishedYear > year)
-                .Include(b => b.Author)
-                .ToListAsync();
-
-            return Ok(books);
+            return Ok(await _bookService.GetBooksPublishedAfterAsync(year));
         }
     }
 }
