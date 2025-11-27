@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Services/" />
+  <Folder Name="/Services/Identity/">
+    <Project Path="InnoShop.Identity.Api/InnoShop.Identity.Api.csproj" />
+    <Project Path="InnoShop.Identity.Application/InnoShop.Identity.Application.csproj" Id="e36eaa42-7db8-44fe-97c6-13decc750337" />
+    <Project Path="InnoShop.Identity.Domain/InnoShop.Identity.Domain.csproj" />
+    <Project Path="InnoShop.Identity.Infrastructure/InnoShop.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Services/Products/">
+    <Project Path="InnoShop.Products.Api/InnoShop.Products.Api.csproj" />
+    <Project Path="InnoShop.Products.Application/InnoShop.Products.Application.csproj" Id="f30757a5-c6a3-40f7-81fe-effcccc6ffd4" />
+    <Project Path="InnoShop.Products.Domain/InnoShop.Products.Domain.csproj" />
+    <Project Path="InnoShop.Products.Infrastructure/InnoShop.Products.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path="docker-compose.yaml" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="InnoShop.Identity.Tests/InnoShop.Identity.Tests.csproj" Id="b9ef0a5c-f152-4c26-9598-b516a62d2f70" />
+    <Project Path="InnoShop.Products.Tests/InnoShop.Products.Tests.csproj" Id="d6bbb0c8-637f-4bb5-b539-0759c2e85a2a" />
+  </Folder>
+</Solution>

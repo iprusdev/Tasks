@@ -1,0 +1,18 @@
+﻿using System;
+
+namespace InnoShop.Products.Domain.Entities
+{
+    public class Product
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+
+        public Guid UserId { get; set; }
+
+        public bool IsAvailable { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
+}

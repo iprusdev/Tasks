@@ -1,0 +1,6 @@
+@InnoShop.Identity.Api_HostAddress = http://localhost:5116
+
+GET {{InnoShop.Identity.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
